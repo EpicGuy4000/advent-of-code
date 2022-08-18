@@ -1,9 +1,6 @@
 class Trie {
     root:TrieNode = new TrieNode();
 
-    constructor() {
-    }
-
     add(value:string) {
         let node = this.root;
         for (let i = 0; i < value.length; i++) {
