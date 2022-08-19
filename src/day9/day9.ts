@@ -11,9 +11,7 @@ class Point {
     }
 
     getBasin():number[] {
-        const basinHashes = new Set<number>([ this.engine.getHash(this.x, this.y) ]);
-
-        return [...this.getBasinInternal(basinHashes)];
+        return [...this.getBasinInternal(new Set<number>([ this.engine.getHash(this.x, this.y) ]))];
     }
 
     private getNeighbors():Point[] {
@@ -36,12 +34,11 @@ class Point {
     private getBasinInternal(hashesAlreadyInBasin:Set<number>):Set<number> {
         const neighbors = this.getNeighbors()
             .filter(n => n.value < 9)
-            .filter(n => {
-                const hash = this.engine.getHash(n.x, n.y);
-                return !hashesAlreadyInBasin.has(hash);
-            });
+            .filter(n => !hashesAlreadyInBasin.has(this.engine.getHash(n.x, n.y)));
         for (const neighbor of neighbors) {
             hashesAlreadyInBasin.add(this.engine.getHash(neighbor.x, neighbor.y));
+        }
+        for (const neighbor of neighbors) {
             neighbor.getBasinInternal(hashesAlreadyInBasin);
         }
 
@@ -59,10 +56,6 @@ export class RiskAssessmentEngine {
 
     getHash(x:number, y:number):number {
         return x * this.heightmap.length * this.heightmap.length + y;
-    }
-
-    decodeHash(hash:number):number[] {
-        return [Math.floor(hash / (this.heightmap.length * this.heightmap.length)), hash % (this.heightmap.length * this.heightmap.length)];
     }
 
     getPoint(x, y) {
