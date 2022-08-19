@@ -1,16 +1,95 @@
+class Point {
+    engine:RiskAssessmentEngine;
+    x:number;
+    y:number;
+    value:number;
+    constructor(x:number, y:number, value:number, engine:RiskAssessmentEngine) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
+        this.engine = engine;
+    }
+
+    getBasin():number[] {
+        const basinHashes = new Set<number>([ this.engine.getHash(this.x, this.y) ]);
+
+        return [...this.getBasinInternal(basinHashes)];
+    }
+
+    private getNeighbors():Point[] {
+        const neighbors = [];
+
+        for (let change of [-1, 1]) {
+            const pointX = this.engine.getPoint(this.x + change, this.y);
+            if (pointX) {
+                neighbors.push(pointX);
+            }
+            const pointY = this.engine.getPoint(this.x, this.y + change);
+            if (pointY) {
+                neighbors.push(pointY);
+            }
+        }
+
+        return neighbors;
+    }
+
+    private getBasinInternal(hashesAlreadyInBasin:Set<number>):Set<number> {
+        const neighbors = this.getNeighbors()
+            .filter(n => n.value < 9)
+            .filter(n => {
+                const hash = this.engine.getHash(n.x, n.y);
+                return !hashesAlreadyInBasin.has(hash);
+            });
+        for (const neighbor of neighbors) {
+            hashesAlreadyInBasin.add(this.engine.getHash(neighbor.x, neighbor.y));
+            neighbor.getBasinInternal(hashesAlreadyInBasin);
+        }
+
+        return hashesAlreadyInBasin;
+    }
+}
+
 export class RiskAssessmentEngine {
-    getLowPoints(heightmap: number[][]):number[] {
-        const lowPoints = [];
+    points:Record<number, Point> = {};
+    private readonly heightmap: number[][];
 
+    constructor(heightmap:number[][]) {
+        this.heightmap = heightmap;
+    }
 
-        for (let i = 0; i < heightmap.length; i++) {
-            for (let j = 0; j < heightmap[i].length; j++) {
-                if ((i === 0 || heightmap[i - 1][j] > heightmap[i][j])
-                    && (i === heightmap.length - 1 || heightmap[i + 1][j] > heightmap[i][j])
-                    && (j === 0 || heightmap[i][j - 1] > heightmap[i][j])
-                    && (j === heightmap[i].length - 1 || heightmap[i][j + 1] > heightmap[i][j]))
+    getHash(x:number, y:number):number {
+        return x * this.heightmap.length * this.heightmap.length + y;
+    }
+
+    decodeHash(hash:number):number[] {
+        return [Math.floor(hash / (this.heightmap.length * this.heightmap.length)), hash % (this.heightmap.length * this.heightmap.length)];
+    }
+
+    getPoint(x, y) {
+        if (x === -1 || y === -1 || x === this.heightmap.length || y === this.heightmap[0].length) {
+            return undefined;
+        }
+
+        const hash = this.getHash(x, y);
+        if (!this.points[hash]) {
+            this.points[hash] = new Point(x, y, this.heightmap[x][y], this);
+        }
+        return this.points[hash];
+    }
+
+    getLowPoints():number[][] {
+        const lowPoints:number[][] = [];
+
+        for (let i = 0; i < this.heightmap.length; i++) {
+            for (let j = 0; j < this.heightmap[i].length; j++) {
+                const point = this.getPoint(i, j);
+
+                if ((i === 0 || this.heightmap[i - 1][j] > point.value)
+                    && (i === this.heightmap.length - 1 || this.heightmap[i + 1][j] > point.value)
+                    && (j === 0 || this.heightmap[i][j - 1] > point.value)
+                    && (j === this.heightmap[i].length - 1 || this.heightmap[i][j + 1] > point.value))
                 {
-                    lowPoints.push(heightmap[i][j]);
+                    lowPoints.push([i, j]);
                 }
             }
         }
@@ -18,7 +97,12 @@ export class RiskAssessmentEngine {
         return lowPoints;
     }
 
-    assessRiskLevel(lowPoints: number[]):number {
-        return lowPoints.reduce((acc, x) => acc + x + 1, 0);
+    assessRiskLevel(lowPoints: number[][]):number {
+        return lowPoints.map(xy => this.getPoint(xy[0], xy[1])).reduce((acc, x) => acc + x.value + 1, 0);
+    }
+
+    getBasinCounts(lowPoints):number[] {
+        return lowPoints.map(xy => this.getPoint(xy[0], xy[1]))
+            .map(p => p.getBasin().length)
     }
 }
