@@ -1,18 +1,16 @@
 export class SyntaxChecker {
-    private symbolOpeners = [ '(', '[', '{', '<' ];
-    private symbolValue = [ 3, 57, 1197, 25137 ];
-    private symbolMapper:Record<string, string> = {};
-
-    constructor() {
-        this.symbolMapper['}'] = '{';
-        this.symbolMapper['{'] = '}';
-        this.symbolMapper[')'] = '(';
-        this.symbolMapper['('] = ')';
-        this.symbolMapper[']'] = '[';
-        this.symbolMapper['['] = ']';
-        this.symbolMapper['>'] = '<';
-        this.symbolMapper['<'] = '>';
-    }
+    private static symbolOpeners = [ '(', '[', '{', '<' ];
+    private static symbolValue = [ 3, 57, 1197, 25137 ];
+    private static symbolMapper:Record<string, string> = {
+        '{':'}',
+        '}':'{',
+        '(':')',
+        ')':'(',
+        '[':']',
+        ']':'[',
+        '<':'>',
+        '>':'<',
+    };
 
     getErrorScore(lines:string[]):number {
         return lines
@@ -34,7 +32,7 @@ export class SyntaxChecker {
         let score = 0;
         for (let i = closers.length - 1; i >= 0; i--) {
             score *= 5;
-            score += this.symbolOpeners.indexOf(this.symbolMapper[closers[i]]) + 1;
+            score += SyntaxChecker.symbolOpeners.indexOf(SyntaxChecker.symbolMapper[closers[i]]) + 1;
         }
         return score;
     }
@@ -46,14 +44,14 @@ export class SyntaxChecker {
     private validateLine(line:string, expectedClosers:string[]):number|string[] {
         if (line.length === 0)
             return expectedClosers;
-        if (expectedClosers.length === 0 && this.symbolOpeners.indexOf(line[0]) === -1)
+        if (expectedClosers.length === 0 && SyntaxChecker.symbolOpeners.indexOf(line[0]) === -1)
             throw line;
-        if (this.symbolOpeners.indexOf(line[0]) !== -1) {
-            expectedClosers.push(this.symbolMapper[line[0]]);
+        if (SyntaxChecker.symbolOpeners.indexOf(line[0]) !== -1) {
+            expectedClosers.push(SyntaxChecker.symbolMapper[line[0]]);
             return this.validateLine(line.substring(1), expectedClosers);
         }
         if (line[0] !== expectedClosers[expectedClosers.length - 1])
-            return this.symbolValue[this.symbolOpeners.indexOf(this.symbolMapper[line[0]])];
+            return SyntaxChecker.symbolValue[SyntaxChecker.symbolOpeners.indexOf(SyntaxChecker.symbolMapper[line[0]])];
         expectedClosers.pop();
         return this.validateLine(line.substring(1), expectedClosers);
     }
