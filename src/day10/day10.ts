@@ -16,17 +16,36 @@ export class SyntaxChecker {
 
     getErrorScore(lines:string[]):number {
         return lines
-            .map(line => this.getErrorScoreForLine(line))
+            .map(line => this.getScoreForLine(line))
+            .filter(score => !Array.isArray(score))
+            .map(score => score as number)
             .reduce((acc, score) => acc + score);
     }
 
-    private getErrorScoreForLine(line:string):number {
+    getAutocompleteScores(lines:string[]):number[] {
+        return lines
+            .map(line => this.getScoreForLine(line))
+            .filter(score => Array.isArray(score))
+            .map(score => score as string[])
+            .map(closers => this.getAutocompleteScore(closers));
+    }
+
+    private getAutocompleteScore(closers:string[]):number {
+        let score = 0;
+        for (let i = closers.length - 1; i >= 0; i--) {
+            score *= 5;
+            score += this.symbolOpeners.indexOf(this.symbolMapper[closers[i]]) + 1;
+        }
+        return score;
+    }
+
+    private getScoreForLine(line:string):number|string[] {
         return this.validateLine(line, []);
     }
 
-    private validateLine(line:string, expectedClosers:string[]):number {
+    private validateLine(line:string, expectedClosers:string[]):number|string[] {
         if (line.length === 0)
-            return 0;
+            return expectedClosers;
         if (expectedClosers.length === 0 && this.symbolOpeners.indexOf(line[0]) === -1)
             throw line;
         if (this.symbolOpeners.indexOf(line[0]) !== -1) {
