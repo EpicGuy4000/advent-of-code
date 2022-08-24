@@ -8,7 +8,7 @@ export const example = [
     "b-end"
 ];
 
-export const bigger_example = [
+export const larger_example = [
     "dc-end",
     "HN-start",
     "start-kj",
@@ -20,6 +20,27 @@ export const bigger_example = [
     "kj-HN",
     "kj-dc"
 ];
+
+export const even_large_example = [
+    "fs-end",
+    "he-DX",
+    "fs-he",
+    "start-DX",
+    "pj-DX",
+    "end-zg",
+    "zg-sl",
+    "zg-pj",
+    "pj-he",
+    "RW-he",
+    "fs-DX",
+    "pj-RW",
+    "zg-RW",
+    "start-pj",
+    "he-WI",
+    "zg-he",
+    "pj-fs",
+    "start-RW"
+]
 
 export const full = [
     "xx-xh",
