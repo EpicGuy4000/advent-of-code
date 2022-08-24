@@ -9,7 +9,6 @@ test.each([
 ('for example, after %s steps flash count is %s', ({ steps, flashCounter }) => {
     const simulator = new OctopusesSimulator(example);
     simulator.simulateRounds(steps)
-    console.log('expected', simulator.flashCounter, 'to equal', flashCounter);
     expect(simulator.flashCounter).toEqual(flashCounter);
 })
 
@@ -23,4 +22,14 @@ test('for full input, after 100 rounds prints result', () => {
     const simulator = new OctopusesSimulator(full);
     simulator.simulateRounds(100);
     console.log('after 100 rounds, there will be this many flashes', simulator.flashCounter);
+})
+
+test('for example, first simultaneous flash occurs after 195 rounds', () => {
+    const simulator = new OctopusesSimulator(example);
+    expect(simulator.findFirstSimultaneousFlash()).toBe(195);
+})
+
+test('for full, prints first simultaneous flash', () => {
+    const simulator = new OctopusesSimulator(full);
+    console.log('first simultaneous flash occurs after', simulator.findFirstSimultaneousFlash(), 'rounds');
 })

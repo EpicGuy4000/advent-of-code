@@ -61,13 +61,23 @@ export class OctopusesSimulator {
 
     simulateRounds(roundNumber:number) {
         const allOctopuses = Object.values(this.octopuses).map(x => x as DumboOctopus);
-        for (this.currentRound = 0; this.currentRound < roundNumber; this.currentRound++) {
+        for (let i = 0; i < roundNumber; i++) {
+            this.currentRound++;
             allOctopuses
                 .forEach(dumbo => dumbo.gainEnergy());
         }
     }
 
-    private print() {
+    findFirstSimultaneousFlash():number {
+        let oldFlashCount = this.flashCounter;
+        while(this.flashCounter - oldFlashCount !== 100) {
+            oldFlashCount = this.flashCounter;
+            this.simulateRounds(1);
+        }
+        return this.currentRound;
+    }
+
+    print() {
         const rows = [];
         for (let x = 0; x < 10; x++){
             const row = [...Array(10).keys()].map(y => this.getOctopus(x, y).energyLevel)
