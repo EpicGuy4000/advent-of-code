@@ -37,32 +37,27 @@ export class CaveSystem {
     }
 
     getPathCount():number {
-        const paths = this.findDistinctPaths(this.startCave, []);
+        const paths = this.findDistinctPaths(this.startCave, [], false);
         return paths.length;
     }
 
     getPathCountWithDuplicates(): number {
-        return Object.values(this.caves).map(c => c as Cave)
-            .filter(c => !c.isLarge() && !c.isStart && !c.isEnd)
-            .map(c => this.findDistinctPaths(this.startCave, [], c))
-            .flat()
-            .map(path => this.getPathAsString(path))
-            .filter((v, i, a) => a.indexOf(v) === i) //unique
-            .length;
+        const paths = this.findDistinctPaths(this.startCave, [], true);
+        return paths.length;
     }
 
-    findDistinctPaths(startCave:Cave, pathSoFar:Cave[], caveToVisitTwice?:Cave):Cave[][] {
+    findDistinctPaths(startCave:Cave, pathSoFar:Cave[], visitSomeCavesTwice:boolean):Cave[][] {
         if (startCave.isEnd) {
             return [ [...pathSoFar, startCave] ];
         }
 
-        const possibleNextCaves = startCave.neighbours.filter(c => pathSoFar.indexOf(c) === -1 || c.isLarge() || (c == caveToVisitTwice && pathSoFar.filter(c => c === caveToVisitTwice).length < 2));
+        const possibleNextCaves = startCave.neighbours.filter(c => pathSoFar.indexOf(c) === -1 || c.isLarge() || (visitSomeCavesTwice && !c.isStart));
         if (possibleNextCaves.length === 0)
             return [];
         const newPathSoFar = [...pathSoFar];
         newPathSoFar.push(startCave);
         return possibleNextCaves
-            .map(nextCave => this.findDistinctPaths(nextCave, newPathSoFar, caveToVisitTwice))
+            .map(nextCave => this.findDistinctPaths(nextCave, newPathSoFar, visitSomeCavesTwice && (nextCave.isLarge() || pathSoFar.indexOf(nextCave) === -1)))
             .flat();
     }
 
