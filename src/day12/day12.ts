@@ -60,8 +60,4 @@ export class CaveSystem {
             .map(nextCave => this.findDistinctPaths(nextCave, newPathSoFar, visitSomeCavesTwice && (nextCave.isLarge() || pathSoFar.indexOf(nextCave) === -1)))
             .flat();
     }
-
-    private getPathAsString(path:Cave[]):string {
-        return path.map(c => c.identifier).join('-');
-    }
 }

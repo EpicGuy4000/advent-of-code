@@ -8,10 +8,6 @@ class Coordinates {
         this.y = y;
     }
 
-    static getAll() {
-        return Object.values(this.coordinates);
-    }
-
     static create(x:number, y:number) {
         const id = Coordinates.getId(x, y);
         if (!Coordinates.coordinates[id]) {
@@ -35,10 +31,6 @@ class Line {
     constructor(start:Coordinates, end:Coordinates) {
         this.start = start;
         this.end = end;
-    }
-
-    isStraight() {
-        return this.start.x === this.end.x || this.start.y === this.end.y;
     }
 
     getPoints() {

@@ -77,17 +77,6 @@ export class OctopusesSimulator {
         return this.currentRound;
     }
 
-    print() {
-        const rows = [];
-        for (let x = 0; x < 10; x++){
-            const row = [...Array(10).keys()].map(y => this.getOctopus(x, y).energyLevel)
-                //.map(x => x === 0 ? '+' : '-')
-                .join('');
-            rows.push(row)
-        }
-        console.log(rows.join('\n'));
-    }
-
     getOctopus(x: number, y: number):DumboOctopus {
         if (x < 0 || x > 9 || y < 0 || y > 9)
             return undefined;
