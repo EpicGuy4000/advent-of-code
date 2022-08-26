@@ -51,8 +51,6 @@ export class Folder {
     }
 
     fold() {
-        console.log('starting with');
-        this.print();
         while (this.instructionCounter < this.folds.length) {
             this.foldOnce();
         }
@@ -63,8 +61,6 @@ export class Folder {
             .forEach(d => d.x = 2 * coordinate - d.x);
         this.dots = this.dots.filter((d, i, a) => a.find(d1 => d1.x === d.x && d1.y == d.y) === d);
         this.canvasSizeX = Math.floor(this.canvasSizeX / 2) - 1;
-        console.log('after x fold along', coordinate);
-        this.print();
     }
 
     private foldAlongY(coordinate: number) {
@@ -72,8 +68,6 @@ export class Folder {
             .forEach(d => d.y = 2 * coordinate - d.y);
         this.canvasSizeY = Math.floor(this.canvasSizeY / 2) - 1;
         this.dots = this.dots.filter((d, i, a) => a.find(d1 => d1.x === d.x && d1.y == d.y) === d);
-        console.log('after y fold along', coordinate);
-        this.print();
     }
 
     print() {

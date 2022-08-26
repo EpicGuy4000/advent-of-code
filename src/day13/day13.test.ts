@@ -29,4 +29,5 @@ test('for full input after 1 fold print how many dots are visible', () => {
 test('for full input after all folds prints output', () => {
     const folder = new Folder(full);
     folder.fold();
+    folder.print();
 })
