@@ -6,11 +6,78 @@ class Field {
         this.weight = weight;
     }
 
-    id:string;
+    id: string;
     neighbours: Field[] = [];
-    weight:number;
-    x:number;
-    y:number;
+    weight: number;
+    x: number;
+    y: number;
+}
+
+interface IGraphNode {
+    id: string;
+    neighbours: IGraphNode[];
+    weight: number;
+}
+
+export abstract class GraphSolver<TGraphNode extends IGraphNode> {
+    abstract findPath(start: TGraphNode, end: TGraphNode):TGraphNode[];
+
+    protected reconstructPath(cameFrom: Record<string, TGraphNode>, current: TGraphNode): TGraphNode[] {
+        const path = [current];
+
+        while (current && cameFrom[current.id]) {
+            current = cameFrom[current.id];
+            path.push(current);
+        }
+        return path.reverse();
+    }
+}
+
+export class AStarGraphSolver<TGraphNode extends IGraphNode> extends GraphSolver<TGraphNode> {
+    private readonly heuristicFunction:(node: TGraphNode) => number;
+
+    constructor(heuristicFunction: (node: TGraphNode) => number) {
+        super();
+        this.heuristicFunction = heuristicFunction;
+    }
+
+    findPath(start: TGraphNode, end: TGraphNode): TGraphNode[] {
+        let openSet:TGraphNode[] = [ start ];
+        const cameFrom:Record<string, TGraphNode> = {};
+
+        const gScore:Record<string, number> = {};
+        gScore[start.id] = 0;
+
+        const getGScoreOrDefault = (field:TGraphNode) => gScore[field.id] ?? Infinity;
+
+        const fScore:Record<string, number> = {};
+        fScore[start.id] = this.heuristicFunction(start);
+
+        while(openSet.length !== 0) {
+            const current = openSet.splice(0, 1)[0];
+
+            if (current === end) {
+                return this.reconstructPath(cameFrom, current);
+            }
+
+            for (const neighbour of current.neighbours.map(n => n as TGraphNode)) {
+                const tentativeGScore = getGScoreOrDefault(current) + neighbour.weight;
+
+                if (tentativeGScore < getGScoreOrDefault(neighbour)) {
+                    cameFrom[neighbour.id] = current;
+                    gScore[neighbour.id] = tentativeGScore;
+                    fScore[neighbour.id] = tentativeGScore + this.heuristicFunction(neighbour);
+
+                    if (openSet.indexOf(neighbour) === -1) {
+                        openSet.push(neighbour);
+                        openSet.sort((x, y) => fScore[x.id] - fScore[y.id]);
+                    }
+                }
+            }
+        }
+
+        return [];
+    }
 }
 
 export class CavernNavigation {
@@ -57,14 +124,6 @@ export class CavernNavigation {
         }
     }
 
-    private getFieldId(x: number, y: number, lastX?: number): string {
-        return y * ((lastX || this.end.x) + 1) + x + '';
-    }
-
-    findPath():Field[] {
-        return this.aStar(this.start, this.end, field => Math.sqrt((this.end.x - field.x) ** 2 + ((this.end.y - field.y) ** 2)));
-    }
-
     findLowestRisk(): number {
         const path = this.findPath();
 
@@ -73,51 +132,12 @@ export class CavernNavigation {
         return path.reduce((acc, x) => acc + x.weight, 0);
     }
 
-    private reconstructPath(cameFrom: Record<string, Field>, current: Field): Field[] {
-        const path = [current];
-
-        while (current && cameFrom[current.id]) {
-            current = cameFrom[current.id];
-            path.push(current);
-        }
-        return path.reverse();
+    private getFieldId(x: number, y: number, lastX?: number): string {
+        return y * ((lastX || this.end.x) + 1) + x + '';
     }
 
-    private aStar(start:Field, end:Field, heuristic:(Field) => number): Field[] {
-        let openSet:Field[] = [ start ];
-        const cameFrom:Record<string, Field> = {};
-
-        const gScore:Record<string, number> = {};
-        gScore[start.id] = 0;
-
-        const getGScoreOrDefault = (field:Field) => gScore[field.id] ?? Infinity;
-
-        const fScore:Record<string, number> = {};
-        fScore[start.id] = heuristic(start);
-
-        while(openSet.length !== 0) {
-            const current = openSet.splice(0, 1)[0];
-
-            if (current === end) {
-                return this.reconstructPath(cameFrom, current);
-            }
-
-            for (const neighbour of current.neighbours) {
-                const tentativeGScore = getGScoreOrDefault(current) + neighbour.weight;
-
-                if (tentativeGScore < getGScoreOrDefault(neighbour)) {
-                    cameFrom[neighbour.id] = current;
-                    gScore[neighbour.id] = tentativeGScore;
-                    fScore[neighbour.id] = tentativeGScore + heuristic(neighbour);
-
-                    if (openSet.indexOf(neighbour) === -1) {
-                        openSet.push(neighbour);
-                        openSet.sort((x, y) => fScore[x.id] - fScore[y.id]);
-                    }
-                }
-            }
-        }
-
-        return [];
+    private findPath():IGraphNode[] {
+        return new AStarGraphSolver<Field>(field => Math.sqrt((this.end.x - field.x) ** 2 + ((this.end.y - field.y) ** 2)))
+            .findPath(this.start, this.end);
     }
 }
