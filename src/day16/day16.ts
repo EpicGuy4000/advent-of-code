@@ -1,10 +1,5 @@
 export function hex2bin(hex): string {
-    if (hex.length === 1)
-    {
-        return (parseInt(hex, 16).toString(2)).padStart(4, '0');
-    }
-
-    return hex.split('').map(h => hex2bin(h)).join('');
+    return hex.split('').map(h => (parseInt(h, 16).toString(2)).padStart(4, '0')).join('');
 }
 
 interface IConcretePacketParser {
