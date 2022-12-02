@@ -20,9 +20,26 @@ class Round {
         this.opponentsShape = opponentsShape;
         this.myShape = myShape;
     }
+
     static parse(input: string): Round {
-        const [opponentsShape, myShape] = input.split(' ');
-        return new Round(shapeMap[opponentsShape], shapeMap[myShape]);
+        const [opponentsShapeStr, result] = input.split(' ');
+        const opponentsShape: Shape = shapeMap[opponentsShapeStr];
+        let myShape: Shape;
+        switch (result) {
+            case 'X':
+                myShape = opponentsShape - 1;
+                break;
+            case 'Y':
+                myShape = opponentsShape;
+                break;
+            default:
+                myShape = opponentsShape + 1;
+                break;
+        }
+
+        myShape = (3 + myShape) % 3;
+
+        return new Round(opponentsShape, myShape);
     }
 
     getScore(): number {
