@@ -34,7 +34,6 @@ test('for full input gives priority sum', () => {
 })
 
 test('for example, the sum of each thee elf group badge priority is 70', () => {
-    let i = 0;
     const groups = Rucksack.getElfGroups(example);
 
     const sum = groups.map(group => Rucksack.getRepeatingItemInArrays(group))
@@ -45,7 +44,6 @@ test('for example, the sum of each thee elf group badge priority is 70', () => {
 })
 
 test('for full input, the sum of each thee elf group badge priority is logged', () => {
-    let i = 0;
     const groups = Rucksack.getElfGroups(full);
 
     const sum = groups.map(group => Rucksack.getRepeatingItemInArrays(group))
