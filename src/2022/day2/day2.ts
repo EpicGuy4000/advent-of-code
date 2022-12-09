@@ -62,8 +62,8 @@ class Round {
 export class RockPaperScissorsStrategyGuide {
     public readonly rounds: Round[];
 
-    constructor(input: string) {
-        this.rounds = input.split(/\r?\n/)
+    constructor(input: string[]) {
+        this.rounds = input
             .filter(str => str.length > 0)
             .map(Round.parse);
     }

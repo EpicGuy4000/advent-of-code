@@ -19,13 +19,13 @@ test('Example gives score of 12', () => {
 })
 
 test('My example gives score of 15', () => {
-    const guide = new RockPaperScissorsStrategyGuide('B Y\nC X\nA Z');
+    const guide = new RockPaperScissorsStrategyGuide(['B Y', 'C X', 'A Z']);
     console.log(guide.rounds);
     expect(guide.getTotalScore()).toBe(15);
 })
 
 test('My other example gives score of 18', () => {
-    const guide = new RockPaperScissorsStrategyGuide('C Y\nA X\nB Z');
+    const guide = new RockPaperScissorsStrategyGuide(['C Y', 'A X', 'B Z']);
     console.log(guide.rounds);
     expect(guide.getTotalScore()).toBe(18);
 })
