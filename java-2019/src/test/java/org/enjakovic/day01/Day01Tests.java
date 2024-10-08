@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.*;
 import java.util.Objects;
+import java.util.Scanner;
 
 public class Day01Tests {
 
@@ -23,10 +24,9 @@ public class Day01Tests {
         long solution = 0;
 
         try (FileReader reader = new FileReader(file)) {
-            try (BufferedReader br = new BufferedReader(reader)) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    solution += new Module(Integer.parseInt(line)).getRequiredFuel();
+            try (Scanner sc = new Scanner(reader)) {
+                while (sc.hasNext()) {
+                    solution += new Module(Integer.parseInt(sc.nextLine())).getRequiredFuel();
                 }
             }
         } catch (IOException e) {
