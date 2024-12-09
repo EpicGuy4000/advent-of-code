@@ -95,7 +95,6 @@ def part_2(lab_map: list[str])->int:
             if lab_map[i][j] != _obstacle and lab_map[i][j] != _target:
                 if check_loop_exists((i, j), lab_map, (starting_x, starting_y), (-1, 0)):
                     result.add((i, j))
-                    print("possible obstacle", (i, j))
 
 
     return len(result)
